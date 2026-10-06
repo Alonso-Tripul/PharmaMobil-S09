@@ -88,6 +88,16 @@ El proyecto adjunto originalmente tenía repositorios en memoria. Se añadió `P
 
 Crear/editar envía `nombre`, `precio`, `stock`, `estado` y `categoriaId`. El ID de categoría debe existir en PharmaSoft. La baja es **lógica**: el backend cambia `estado=false` y el producto puede seguir en el listado con la etiqueta Inactivo. El módulo Clientes conserva el repositorio en memoria de la base adjunta. JWT y sincronización offline pertenecen al producto de la unidad y no se presentan como implementados en esta sesión.
 
+### Backend con el esquema existente usado en la prueba
+
+El primer arranque conectó a Oracle, pero Flyway detectó una diferencia entre la migración V1 local y la que ya estaba registrada. Para esta sesión se inició el backend desde la carpeta `pharmaSoft` con:
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=sesion09" "-Dspring-boot.run.arguments=--spring.flyway.enabled=false --spring.jpa.hibernate.ddl-auto=validate"
+```
+
+Este comando usa el esquema existente y mantiene la validación de Hibernate. La discrepancia del historial de Flyway sigue pendiente de revisar contra la migración que creó esas tablas; no se hizo `repair`, ni se recreó la base. En una base nueva debe usarse una migración compatible con su versión de Oracle.
+
 ## Evidencias de la práctica
 
 Consulta `docs/EVIDENCIAS_S09.md`. Deben adjuntarse cinco capturas auténticas:
@@ -98,7 +108,17 @@ Consulta `docs/EVIDENCIAS_S09.md`. Deben adjuntarse cinco capturas auténticas:
 4. Selector de compartir Android con el texto del producto.
 5. Hoja de compartir iOS con el mismo producto.
 
-**Estado de verificación:** implementación revisada estáticamente; compilación Android y ejecución de pruebas pendientes. El intento de `:androidApp:assembleDebug` no alcanzó el compilador porque la descarga de Gradle 9.1.0 falló por falta de acceso de red. Este entorno no dispone de macOS/Xcode ni emuladores. No se incluyen capturas inventadas ni se afirma que las pruebas hayan aprobado.
+**Resultados verificados el 06/10/2026 en el equipo del estudiante:**
+
+- `:androidApp:assembleDebug` y `:shared:testAndroidHostTest`: **BUILD SUCCESSFUL**.
+- Informe de Gradle: **54 pruebas, 0 fallos, 0 omitidas y 100 % de éxito**; duración de las pruebas **0,664 s**. Son pruebas de host; no son 54 pruebas de interfaz en el emulador.
+- Pixel 6, Android API 34: inventario obtenido de PharmaSoft, con Paracetamol 500 mg a **S/ 6.00** y stock **25**.
+- Detalle y selector nativo Android verificados. Texto observado: `Paracetamol 500 mg — S/ 6.00 · Stock: 25`.
+- Punto de control: al retirar temporalmente `Formato.android.kt`, el compilador informó `Expected formatearSoles has no actual declaration`. Después de restaurarlo, `:shared:compileAndroidMain` terminó con **BUILD SUCCESSFUL**; la tarea de compilación se recuperó de caché.
+- PharmaSoft inició en el puerto 8080 con Java 21 y Oracle **21.3 / XEPDB1**, usando las tablas existentes y Flyway desactivado solo mediante un argumento de ejecución.
+- **iOS: compilación, ejecución, listado y hoja de compartir pendientes de una Mac con Xcode.** Hay implementación en el código, pero aún no hay evidencia de ejecución iOS. Las capturas Android no sustituyen las dos capturas iOS exigidas.
+
+Las capturas originales están incluidas y comentadas en [docs/EVIDENCIAS_S09.md](docs/EVIDENCIAS_S09.md). La prueba visual acredita carga, formato, detalle y apertura del selector; no se declara verificado todo el CRUD ni el envío a un destinatario.
 
 La revisión de source sets encontró las tres firmas de `formatearSoles`, los dos registros de `Compartidor`, el botón en el detalle y ninguna importación `android.*` o `platform.UIKit.*` en `presentation`.
 
@@ -106,9 +126,14 @@ Se conservaron las pruebas originales y se añadieron cinco casos para compartir
 
 ## Rama y commits exigidos
 
-La guía exige `feature/expect-actual-<apellido>` desde `develop`, al menos tres commits propios por integrante y sus enlaces. El ZIP no crea ramas remotas ni atribuye commits a los estudiantes. Integra los cambios en tu repositorio, distribuye los commits según el trabajo real y publica tu rama antes de entregar. No declares una pareja que no haya participado.
+Trabajo individual de Rony Alonso Ancajima Tripul.
 
-Ejemplo de organización: contrato y formateadores; implementaciones y Koin; detalle, integración REST, pruebas y documentación. Registra tus enlaces reales en `docs/EVIDENCIAS_S09.md`.
+- Repositorio: [Alonso-Tripul/PharmaMobil-S09](https://github.com/Alonso-Tripul/PharmaMobil-S09).
+- Rama publicada: [feature/expect-actual-ancajima](https://github.com/Alonso-Tripul/PharmaMobil-S09/tree/feature/expect-actual-ancajima).
+- Historial de la rama: [commits](https://github.com/Alonso-Tripul/PharmaMobil-S09/commits/feature/expect-actual-ancajima).
+- Commit de corrección de la prueba REST mostrado en consola: `c9abcbb`.
+
+La consola confirmó el envío de la rama y de las correcciones. El historial completo debe comprobarse para acreditar los tres commits propios que exige la guía; no se deduce su cantidad del número de tareas de Gradle.
 
 ## Referencias técnicas
 
@@ -119,3 +144,18 @@ Ejemplo de organización: contrato y formateadores; implementaciones y Koin; det
 - Ktor: https://ktor.io/docs/client-serialization.html
 - Koin: https://insert-koin.io/docs/reference/koin-core/dsl/
 - Apple: https://developer.apple.com/documentation/uikit/uipopoverpresentationcontroller/sourceview
+
+## Código específico de plataforma
+
+Actividad Autónoma N.º 09. Inventario completo: [INVENTARIO.md](docs/autonoma-s09/INVENTARIO.md). Análisis comparativo: [ANALISIS_COMPARATIVO.md](docs/autonoma-s09/ANALISIS_COMPARATIVO.md). Evidencias: [EVIDENCIAS.md](docs/autonoma-s09/EVIDENCIAS.md).
+
+| Capacidad | Contrato | Android | iOS |
+|---|---|---|---|
+| Moneda peruana | `expect fun formatearSoles(valor: Double): String` | `NumberFormat` y `Locale("es", "PE")` | `NSNumberFormatter` y `NSLocale("es_PE")` |
+| Compartir | Interfaz común `Compartidor`; proveedor mediante `actual platformModule` | `Context`, `Intent.ACTION_SEND` y chooser | `UIActivityViewController` y controlador activo |
+| Inyección | `expect val platformModule: Module` | Koin `module`, `androidContext()`, motor Ktor Android | Koin `module`, motor Ktor Darwin |
+| Información del dispositivo | `expect class InfoDispositivo()`; `sistema` y `version` | `Build.VERSION.RELEASE` | `UIDevice.currentDevice.systemName` y `systemVersion` |
+
+En la app, abrir **menú → Acerca de**. La pantalla común está en `presentation/acerca/AcercaDeScreen.kt`; las rutas completas de los contratos e implementaciones figuran en el inventario. No hay importaciones `android.` ni `platform.` en todo commonMain.
+
+**Verificado en Android:** la compilación y la tarea de pruebas finalizaron correctamente; Acerca de mostró **Android 14**. La captura y el log se incluyen en las evidencias. **iOS:** código implementado, compilación y evidencia visual pendientes. La actividad no se presenta como verificada en ambas plataformas hasta completar esa ejecución.
