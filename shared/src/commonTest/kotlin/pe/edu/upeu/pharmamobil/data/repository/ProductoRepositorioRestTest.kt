@@ -29,7 +29,7 @@ class ProductoRepositorioRestTest {
         try {
             val repositorio = ProductoRepositorioRest(cliente, ConfiguracionApi("http://localhost/api/v1/"))
             assertEquals(listOf(1L, 2L), repositorio.listar().map { it.id })
-            assertEquals(listOf("0", "1"), paginas)
+            assertEquals<List<String?>>(listOf("0", "1"), paginas.toList())
         } finally { cliente.close() }
     }
 
