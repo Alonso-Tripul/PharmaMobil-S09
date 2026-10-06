@@ -1,37 +1,92 @@
 # Evidencias reales — Sesión 09
 
-Estas evidencias deben obtenerse ejecutando la entrega. La carpeta `evidencias-s09` no contiene capturas de ejecución, porque no se dispone de emuladores ni de macOS en el entorno de preparación.
+**Estudiante:** Rony Alonso Ancajima Tripul  
+**Fecha:** 6 de octubre de 2026  
+**Entorno observado:** Windows, Android Studio, Pixel 6 API 34, Gradle 9.1.0, Java 21.0.9 para PharmaSoft, Oracle 21.3 con XEPDB1.
 
-| Orden | Nombre de archivo sugerido | Qué debe verse | Estado |
+Las imágenes son capturas originales aportadas por el estudiante durante la ejecución. Se conservan sin alterar sus resultados. Los números 3 y 5 se reservan para las evidencias iOS de la guía.
+
+| Orden de la guía | Archivo | Resultado acreditado | Estado |
 |---|---|---|---|
-| 1 | `01_error_falta_actual.png` | Compilador reclamando el `actual` del formateador | Pendiente |
-| 2 | `02_android_listado_soles.png` | Producto y precio con moneda peruana | Pendiente |
-| 3 | `03_ios_listado_soles.png` | El mismo producto y precio en iOS | Pendiente |
-| 4 | `04_android_compartir.png` | Selector Android y texto compartido | Pendiente |
-| 5 | `05_ios_compartir.png` | Hoja iOS y texto compartido | Pendiente |
+| 1 | `01_error_falta_actual.png` | Kotlin reclama el `actual` de `formatearSoles` | Verificado |
+| 2 | `02_android_listado_soles.png` | Inventario y precio S/ 6.00 en Android | Verificado |
+| 3 | `03_ios_listado_soles.png` | Listado con moneda en iOS | Pendiente; archivo no incluido |
+| 4 | `04_android_compartir.png` | Selector Android con nombre, precio y stock | Verificado |
+| 5 | `05_ios_compartir.png` | Hoja nativa de iOS | Pendiente; archivo no incluido |
 
-## Punto de control 1 sin perder la implementación
+## 1. Punto de control expect/actual
 
-1. Trabaja en una copia temporal del proyecto y cierra cualquier compilación previa.
-2. Cambia el nombre de `Formato.android.kt` a `Formato.android.kt.txt`, y de `Formato.ios.kt` a `Formato.ios.kt.txt`, conservando `commonMain/platform/Formato.kt`.
-3. Ejecuta `gradlew.bat :androidApp:assembleDebug` en Windows, o `./gradlew :androidApp:assembleDebug` en macOS/Linux.
-4. Captura el error **del compilador Kotlin** por ausencia de `actual`. Un error de red o de SDK no es esa evidencia. La compilación Android evidencia su target; para evidenciar iOS compila su framework también en el Mac.
-5. Restituye los dos nombres `.kt` y recompila. No entregues el proyecto con los `actual` retirados.
+Se cambió temporalmente la extensión de `Formato.android.kt` y se ejecutó `:shared:compileAndroidMain`. El error relevante fue `Expected formatearSoles has no actual declaration in module <commonMain> for JVM`. Es el fallo intencional del punto de control.
 
-## Capturas en los dispositivos
+![Error por falta de actual](evidencias-s09/01_error_falta_actual.png)
 
-Usa el mismo producto, por ejemplo Paracetamol, precio 12.50 y stock 8. Primero captura el listado. Abre el detalle, pulsa Compartir y captura la hoja/selector. Si el selector no muestra el texto completo, abre un destino como Notas o un borrador para mostrarlo; no hace falta enviar el texto a otra persona. Registra las versiones reales de Android e iOS y comenta el símbolo, los espacios y los decimales que observas.
+El archivo se restauró mediante el bloque `finally`. La verificación posterior terminó con `BUILD SUCCESSFUL in 3s`; `:shared:compileAndroidMain` aparece `FROM-CACHE`, por lo que no se presenta como una recompilación completa desde cero.
 
-## Completar al ejecutar
+![Compilación después de restaurar actual](evidencias-s09/09_compilacion_restaurada.png)
 
-- Dispositivo/emulador Android y versión: pendiente.
-- Simulador/dispositivo iOS y versión: pendiente.
-- Resultado real de compilación Android: pendiente.
-- Resultado real de compilación iOS: pendiente.
-- Resultado de pruebas y cantidad que aprobó: pendiente.
-- Diferencias de formato observadas: pendiente de capturas.
-- Enlace a rama del estudiante: pendiente.
-- Enlace a rama del segundo integrante, si corresponde: pendiente.
-- Tres commits propios por integrante: pendiente de integración en sus repositorios.
+## 2. Inventario Android y formato monetario
 
-La actividad autónoma asociada tiene fecha límite indicada en la guía: 12/10/2026 a las 23:59. Este documento prepara la comparación, pero las observaciones empíricas y las imágenes solo se completan después de ejecutar.
+La app obtuvo dos productos de PharmaSoft. Paracetamol 500 mg muestra **S/ 6.00**, con **25 unidades**. El segundo registro muestra **S/ 5.00**. Ambos registros figuran como inactivos. El símbolo observado es `S/`, seguido de espacio, y el precio presenta dos decimales con punto.
+
+![Inventario Android con soles](evidencias-s09/02_android_listado_soles.png)
+
+## 3. Detalle y compartir en Android
+
+El detalle conserva Paracetamol 500 mg, S/ 6.00 y stock 25. Al pulsar Compartir se abrió el selector del sistema, con el texto `Paracetamol 500 mg — S/ 6.00 · Stock: 25`. No se necesitó enviar un mensaje a otra persona para comprobar la apertura del selector.
+
+![Detalle del producto](evidencias-s09/07_android_detalle.png)
+
+![Selector nativo Android](evidencias-s09/04_android_compartir.png)
+
+## 4. Compilación del APK y pruebas automatizadas
+
+Comando ejecutado por el estudiante:
+
+```powershell
+.\gradlew.bat :androidApp:assembleDebug :shared:testAndroidHostTest --console=plain
+```
+
+El comando terminó con `BUILD SUCCESSFUL in 23s`. El resumen HTML de `shared/build/reports/tests/testAndroidHostTest/index.html` muestra:
+
+| Medida | Resultado |
+|---|---|
+| Pruebas | 54 |
+| Fallos | 0 |
+| Omitidas | 0 |
+| Éxito | 100 % |
+| Duración de pruebas | 0,664 s |
+
+Los 70 elementos `actionable tasks` del log son tareas de Gradle, no la cantidad de pruebas. El informe muestra 2 pruebas del paquete principal, 6 de repositorios, 4 de inyección, 9 de modelos, 21 de casos de uso, 4 de clientes, 3 de detalle y 5 de productos. La suma es 54. Las pruebas de host utilizan dobles y MockEngine; la captura del inventario aporta evidencia adicional de la conexión real.
+
+![Compilación del APK y tarea de pruebas](evidencias-s09/10_assemble_y_pruebas.png)
+
+![Resumen de las 54 pruebas](evidencias-s09/06_pruebas_unitarias.png)
+
+## 5. Backend y base de datos utilizados
+
+PharmaSoft inició con Tomcat en el puerto 8080 y conectó a Oracle 21.3 en XEPDB1. El primer intento se detuvo por una diferencia de checksum de Flyway V1. Para las pruebas se desactivó Flyway solo en el comando de arranque, conservando `ddl-auto=validate`. El inventario se cargó después de pulsar Reintentar.
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=sesion09" "-Dspring-boot.run.arguments=--spring.flyway.enabled=false --spring.jpa.hibernate.ddl-auto=validate"
+```
+
+![Backend iniciado y conexión Oracle](evidencias-s09/08_backend_iniciado.png)
+
+## 6. Comparación y reflexión
+
+`expect/actual` permite que la pantalla utilice el mismo contrato de moneda mientras cada plataforma utiliza su formateador. En Android se observó `S/ 6.00`. En el código iOS se utiliza NSNumberFormatter con es_PE, pero no se ha observado su resultado en un dispositivo o simulador. La comparación empírica de símbolos y espacios entre plataformas queda pendiente.
+
+El contrato Compartidor permite inyectar la capacidad nativa en el ViewModel y sustituirla por un doble en las pruebas. En Android se comprobó la apertura del selector. La implementación de UIActivityViewController en iOS requiere verificar su presentación en el simulador, incluyendo ventana activa y configuración del popover. Las capturas del archivo `Formato.ios.kt` abierto en Android Studio muestran código, no ejecución iOS.
+
+## 7. Repositorio y pendientes
+
+- [Repositorio publicado](https://github.com/Alonso-Tripul/PharmaMobil-S09).
+- [Rama feature/expect-actual-ancajima](https://github.com/Alonso-Tripul/PharmaMobil-S09/tree/feature/expect-actual-ancajima).
+- [Historial de commits](https://github.com/Alonso-Tripul/PharmaMobil-S09/commits/feature/expect-actual-ancajima).
+- Publicar estas capturas y documentación con un commit propio.
+- Comprobar en el historial los tres commits propios exigidos; se observó en consola el commit `c9abcbb` de la corrección REST y su envío.
+- Compilar y ejecutar iOS en una Mac con Xcode; capturar listado y hoja de compartir del mismo producto, precio 6.00 y stock 25.
+- Registrar versión de iOS y diferencias de formato realmente observadas.
+- Revisar el historial de Flyway antes de usar nuevamente las migraciones sobre este esquema.
+
+La evidencia disponible acredita los puntos 1, 2 y 4 de la guía, además del APK y las 54 pruebas de host. Los puntos 3 y 5 siguen pendientes. No se declara una entrega con todas las evidencias completas.
