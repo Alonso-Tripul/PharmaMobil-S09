@@ -1,0 +1,17 @@
+REVISIÓN ESTÁTICA (no es compilación ni prueba de dispositivo)
+
+OK — commonMain: firma y paquete de formatearSoles presentes
+OK — androidMain: firma y paquete de formatearSoles presentes
+OK — iosMain: firma y paquete de formatearSoles presentes
+OK — androidMain: registro de Compartidor presente
+OK — iosMain: registro de Compartidor presente
+OK — presentation: sin importaciones Android o UIKit
+OK — Producto.aUi: formato aplicado en presentación
+OK — Detalle: botón Compartir enlazado al ViewModel
+OK — XML, plist y catálogo TOML: estructura válida
+OK — Todos los archivos de la base móvil se conservaron
+
+Compilación Android: no iniciada; descarga de Gradle bloqueada (Network is unreachable).
+Pruebas Kotlin: no ejecutadas.
+Compilación y ejecución iOS: pendientes de macOS/Xcode.
+Capturas y ramas remotas: pendientes del estudiante.
