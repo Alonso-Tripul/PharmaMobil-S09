@@ -73,7 +73,7 @@ Cada `platformModule` registra `single<Compartidor>`. Koin lo inyecta en `Detall
 | Compartir texto | Intent y selector | `UIActivityViewController` | Contrato e inyección para sustituir la capacidad en pruebas |
 | Dependencia nativa | `Context` de aplicación | Ventana/controlador activo | Mantener las dependencias en sus source sets |
 | Condición de presentación | Bandera `NEW_TASK` | Cola principal y popover en iPad | Evitar fallos de presentación |
-| Motor HTTP | Ktor OkHttp | Ktor Darwin | Red común con motor por plataforma |
+| Motor HTTP | Ktor Android (HttpURLConnection) | Ktor Darwin | Red común con motor por plataforma |
 | Equipo de compilación | Android Studio en Windows/macOS/Linux | macOS y Xcode | Verificación independiente |
 
 ### Interoperabilidad Kotlin–Swift

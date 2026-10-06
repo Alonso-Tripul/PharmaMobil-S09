@@ -41,7 +41,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.android)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             // api: MainApplication (androidApp) usa androidContext() al arrancar Koin.
